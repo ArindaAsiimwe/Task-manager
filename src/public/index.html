@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Task Manager - A simple CRUD application deployed on Railway PaaS">
+  <title>Task Manager -- Railway PaaS Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f1117; --surface: #1a1d27; --surface-hover: #242836;
+      --border: #2e3345; --text: #e4e6f0; --text-muted: #8b8fa3;
+      --primary: #6c5ce7; --primary-light: #a29bfe; --success: #00cec9;
+      --warning: #fdcb6e; --danger: #ff7675; --radius: 12px;
+    }
+    [data-theme="light"] {
+      --bg: #f0f2f5; --surface: #ffffff; --surface-hover: #f8f9fa;
+      --border: #dee2e6; --text: #1a1d27; --text-muted: #6c757d;
+      --primary: #6c5ce7; --primary-light: #5a4bd1; --success: #00a89d;
+      --warning: #e0a800; --danger: #e55353;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text);
+      min-height: 100vh; transition: background 0.3s, color 0.3s;
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 2rem 1rem; }
+
+    /* Top bar */
+    .top-bar {
+      display: flex; align-items: center; justify-content: flex-end; gap: 0.75rem;
+      margin-bottom: 1.5rem; padding: 0 0.25rem;
+    }
+    .user-info {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.85rem; color: var(--text-muted);
+    }
+    .user-info strong { color: var(--text); }
+    .btn-logout {
+      padding: 6px 16px; border-radius: 8px; border: 1px solid var(--danger);
+      background: transparent; color: var(--danger); font-family: inherit;
+      font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-logout:hover { background: var(--danger); color: #fff; }
+    .theme-toggle {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 50%; width: 38px; height: 38px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; transition: all 0.3s; color: var(--text);
+    }
+    .theme-toggle:hover { border-color: var(--primary); transform: scale(1.1); }
+
+    header { text-align: center; margin-bottom: 2.5rem; }
+    header h1 {
+      font-size: 2rem; font-weight: 700;
+      background: linear-gradient(135deg, var(--primary-light), var(--success));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; color: transparent;
+      margin-bottom: 0.5rem;
+    }
+    header p { color: var(--text-muted); font-size: 0.95rem; }
+    .health-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 14px; border-radius: 20px; font-size: 0.8rem;
+      background: rgba(0, 206, 201, 0.1); color: var(--success);
+      border: 1px solid rgba(0, 206, 201, 0.2); margin-top: 0.75rem;
+    }
+    .health-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    /* Form */
+    .form-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.5rem; margin-bottom: 2rem; transition: background 0.3s, border-color 0.3s;
+    }
+    .form-card h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .form-row.full { grid-template-columns: 1fr; }
+    label { font-size: 0.82rem; color: var(--text-muted); display: block; margin-bottom: 4px; }
+    input, textarea, select {
+      width: 100%; padding: 10px 14px; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--bg);
+      color: var(--text); font-family: inherit; font-size: 0.9rem;
+      transition: border-color 0.2s, background 0.3s;
+    }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); }
+    textarea { resize: vertical; min-height: 60px; }
+
+    .btn {
+      padding: 10px 24px; border: none; border-radius: 8px;
+      font-family: inherit; font-size: 0.9rem; font-weight: 500;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-light); transform: translateY(-1px); }
+    .btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); padding: 6px 14px; font-size: 0.8rem; }
+    .btn-danger:hover { background: var(--danger); color: #fff; }
+    .btn-sm { padding: 6px 14px; font-size: 0.8rem; }
+
+    /* Stats */
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1rem 1.25rem; text-align: center; transition: background 0.3s, border-color 0.3s;
+    }
+    .stat-card .num { font-size: 1.8rem; font-weight: 700; }
+    .stat-card .label { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+    .stat-pending .num { color: var(--warning); }
+    .stat-progress .num { color: var(--primary-light); }
+    .stat-done .num { color: var(--success); }
+
+    /* Task List */
+    .task-list h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; }
+    .task-item {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1rem 1.25rem; margin-bottom: 0.75rem;
+      display: flex; align-items: center; gap: 1rem;
+      transition: border-color 0.2s, transform 0.15s, background 0.3s;
+    }
+    .task-item:hover { border-color: var(--primary); transform: translateX(4px); }
+    .task-info { flex: 1; }
+    .task-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
+    .task-desc { font-size: 0.82rem; color: var(--text-muted); }
+    .badge {
+      display: inline-block; padding: 3px 10px; border-radius: 20px;
+      font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .badge-pending { background: rgba(253,203,110,0.15); color: var(--warning); }
+    .badge-in_progress { background: rgba(162,155,254,0.15); color: var(--primary-light); }
+    .badge-completed { background: rgba(0,206,201,0.15); color: var(--success); }
+    .badge-low { background: rgba(139,143,163,0.15); color: var(--text-muted); }
+    .badge-medium { background: rgba(108,92,231,0.15); color: var(--primary-light); }
+    .badge-high { background: rgba(255,118,117,0.15); color: var(--danger); }
+    .task-badges { display: flex; gap: 6px; margin-top: 6px; }
+    .task-actions { display: flex; gap: 6px; }
+    .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
+
+    footer {
+      text-align: center; color: var(--text-muted); font-size: 0.8rem;
+      margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border);
+    }
+
+    @media(max-width: 600px) {
+      .form-row { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: 1fr; }
+      .top-bar { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="user-info" id="userInfo"></div>
+      <button class="theme-toggle" id="themeToggle" title="Toggle theme">🌙</button>
+      <button class="btn-logout" id="logoutBtn">Logout</button>
+    </div>
+
+    <header>
+      <h1>Task Manager</h1>
+      <!-- <p>Deployed on Railway -- PaaS Cloud Assignment</p>
+      <div class="health-badge" id="healthBadge">
+        <span class="dot"></span>
+        <span id="healthText">Checking...</span>
+      </div> -->
+    </header>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat-card stat-pending"><div class="num" id="pendingCount">0</div><div class="label">Pending</div></div>
+      <div class="stat-card stat-progress"><div class="num" id="progressCount">0</div><div class="label">In Progress</div></div>
+      <div class="stat-card stat-done"><div class="num" id="doneCount">0</div><div class="label">Completed</div></div>
+    </div>
+
+    <!-- Create Form -->
+    <div class="form-card">
+      <h2>Create New Task</h2>
+      <form id="taskForm">
+        <div class="form-row full">
+          <div><label for="title">Title *</label><input type="text" id="title" placeholder="Enter task title" required></div>
+        </div>
+        <div class="form-row full">
+          <div><label for="description">Description</label><textarea id="description" placeholder="Optional description"></textarea></div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label for="status">Status</label>
+            <select id="status"><option value="pending">Pending</option><option value="in_progress">In Progress</option><option value="completed">Completed</option></select>
+          </div>
+          <div>
+            <label for="priority">Priority</label>
+            <select id="priority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Task</button>
+      </form>
+    </div>
+
+    <!-- Tasks -->
+    <div class="task-list">
+      <h2>All Tasks</h2>
+      <div id="taskContainer"><div class="empty-state">Loading tasks...</div></div>
+    </div>
+
+    <footer>Task Manager &copy; 2026</footer>
+  </div>
+
+  <script>
+    const API = '/api/tasks';
+    const token = localStorage.getItem('token');
+
+    // ─── Auth check ─────────────────────────────
+    if (!token) {
+      window.location.href = '/login';
+    }
+
+    // ─── Auth headers helper ────────────────────
+    function authHeaders(extra = {}) {
+      return { 'Authorization': 'Bearer ' + token, ...extra };
+    }
+
+    // Handle 401 responses (expired/invalid token)
+    function handleAuthError(res) {
+      if (res.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+        return true;
+      }
+      return false;
+    }
+
+    // ─── Show user info ─────────────────────────
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (user.name) {
+      document.getElementById('userInfo').innerHTML = `Welcome, <strong>${esc(user.name)}</strong>`;
+    }
+
+    // ─── Logout ─────────────────────────────────
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    });
+
+    // ─── Theme toggle ───────────────────────────
+    function initTheme() {
+      const saved = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+    }
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      document.getElementById('themeToggle').textContent = next === 'dark' ? '☀️' : '🌙';
+    });
+    initTheme();
+
+    // ─── Health check ───────────────────────────
+    async function checkHealth() {
+      try {
+        const res = await fetch('/api/health');
+        const data = await res.json();
+        const el = document.getElementById('healthText');
+        const badge = document.getElementById('healthBadge');
+        if (data.status === 'healthy') {
+          el.textContent = 'Connected -- DB: ' + data.database;
+        } else {
+          el.textContent = 'Unhealthy';
+          badge.style.color = '#ff7675';
+          badge.style.borderColor = 'rgba(255,118,117,0.3)';
+        }
+      } catch { document.getElementById('healthText').textContent = 'Offline'; }
+    }
+
+    // ─── Load tasks ─────────────────────────────
+    async function loadTasks() {
+      try {
+        const res = await fetch(API, { headers: authHeaders() });
+        if (handleAuthError(res)) return;
+        const { data } = await res.json();
+        const container = document.getElementById('taskContainer');
+
+        document.getElementById('pendingCount').textContent = data.filter(t => t.status === 'pending').length;
+        document.getElementById('progressCount').textContent = data.filter(t => t.status === 'in_progress').length;
+        document.getElementById('doneCount').textContent = data.filter(t => t.status === 'completed').length;
+
+        if (!data.length) { container.innerHTML = '<div class="empty-state">No tasks yet. Create one above!</div>'; return; }
+
+        container.innerHTML = data.map(task => `
+          <div class="task-item">
+            <div class="task-info">
+              <div class="task-title">${esc(task.title)}</div>
+              ${task.description ? `<div class="task-desc">${esc(task.description)}</div>` : ''}
+              <div class="task-badges">
+                <span class="badge badge-${task.status}">${task.status.replace('_', ' ')}</span>
+                <span class="badge badge-${task.priority}">${task.priority}</span>
+              </div>
+            </div>
+            <div class="task-actions">
+              ${task.status !== 'completed' ? `<button class="btn btn-primary btn-sm" onclick="cycleStatus(${task.id}, '${task.status}')">&#9654;</button>` : ''}
+              <button class="btn btn-danger btn-sm" onclick="deleteTask(${task.id})">&#10005;</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) { console.error(err); }
+    }
+
+    function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    async function cycleStatus(id, current) {
+      const next = current === 'pending' ? 'in_progress' : 'completed';
+      const res = await fetch(`${API}/${id}`, { method: 'PUT', headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify({ status: next }) });
+      if (handleAuthError(res)) return;
+      loadTasks();
+    }
+
+    async function deleteTask(id) {
+      if (!confirm('Delete this task?')) return;
+      const res = await fetch(`${API}/${id}`, { method: 'DELETE', headers: authHeaders() });
+      if (handleAuthError(res)) return;
+      loadTasks();
+    }
+
+    document.getElementById('taskForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const body = {
+        title: document.getElementById('title').value,
+        description: document.getElementById('description').value,
+        status: document.getElementById('status').value,
+        priority: document.getElementById('priority').value,
+      };
+      const res = await fetch(API, { method: 'POST', headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(body) });
+      if (handleAuthError(res)) return;
+      e.target.reset();
+      loadTasks();
+    });
+
+    checkHealth();
+    loadTasks();
+  </script>
+</body>
+</html>

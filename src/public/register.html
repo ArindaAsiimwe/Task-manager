@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Create a Task Manager account">
+  <title>Register — Task Manager</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f1117; --surface: #1a1d27; --surface-hover: #242836;
+      --border: #2e3345; --text: #e4e6f0; --text-muted: #8b8fa3;
+      --primary: #6c5ce7; --primary-light: #a29bfe; --success: #00cec9;
+      --danger: #ff7675; --radius: 12px;
+    }
+    [data-theme="light"] {
+      --bg: #f0f2f5; --surface: #ffffff; --surface-hover: #f8f9fa;
+      --border: #dee2e6; --text: #1a1d27; --text-muted: #6c757d;
+      --primary: #6c5ce7; --primary-light: #5a4bd1; --success: #00a89d;
+      --danger: #e55353;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text);
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      transition: background 0.3s, color 0.3s;
+    }
+    .auth-container { width: 100%; max-width: 420px; padding: 1rem; }
+    .auth-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+      padding: 2.5rem 2rem; transition: background 0.3s, border-color 0.3s;
+    }
+    .auth-header { text-align: center; margin-bottom: 2rem; }
+    .auth-header h1 {
+      font-size: 1.8rem; font-weight: 700;
+      background: linear-gradient(135deg, var(--primary-light), var(--success));
+      background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+    .auth-header p { color: var(--text-muted); font-size: 0.9rem; }
+    .form-group { margin-bottom: 1.25rem; }
+    label { display: block; font-size: 0.82rem; font-weight: 500; color: var(--text-muted); margin-bottom: 6px; }
+    input {
+      width: 100%; padding: 12px 16px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--bg);
+      color: var(--text); font-family: inherit; font-size: 0.95rem;
+      transition: border-color 0.2s, background 0.3s;
+    }
+    input:focus { outline: none; border-color: var(--primary); }
+    input::placeholder { color: var(--text-muted); opacity: 0.6; }
+    .btn {
+      width: 100%; padding: 12px; border: none; border-radius: 10px;
+      font-family: inherit; font-size: 1rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; margin-top: 0.5rem;
+      background: var(--primary); color: #fff;
+    }
+    .btn:hover { background: var(--primary-light); transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .error-msg {
+      background: rgba(255,118,117,0.1); color: var(--danger);
+      padding: 10px 14px; border-radius: 8px; font-size: 0.85rem;
+      margin-bottom: 1rem; display: none; border: 1px solid rgba(255,118,117,0.2);
+    }
+    .success-msg {
+      background: rgba(0,206,201,0.1); color: var(--success);
+      padding: 10px 14px; border-radius: 8px; font-size: 0.85rem;
+      margin-bottom: 1rem; display: none; border: 1px solid rgba(0,206,201,0.2);
+    }
+    .auth-footer {
+      text-align: center; margin-top: 1.5rem; font-size: 0.88rem; color: var(--text-muted);
+    }
+    .auth-footer a { color: var(--primary-light); text-decoration: none; font-weight: 500; }
+    .auth-footer a:hover { text-decoration: underline; }
+    .password-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+    .theme-toggle {
+      position: fixed; top: 1rem; right: 1rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 50%; width: 44px; height: 44px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; transition: all 0.3s; color: var(--text);
+    }
+    .theme-toggle:hover { border-color: var(--primary); transform: scale(1.1); }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">🌙</button>
+
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h1>Create Account</h1>
+        <p>Get started with Task Manager</p>
+      </div>
+
+      <div class="error-msg" id="errorMsg"></div>
+      <div class="success-msg" id="successMsg"></div>
+
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" placeholder="John Doe" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" placeholder="you@example.com" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Choose a password" required minlength="6">
+          <div class="password-hint">Must be at least 6 characters</div>
+        </div>
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <input type="password" id="confirmPassword" placeholder="Re-enter your password" required>
+        </div>
+        <button type="submit" class="btn" id="submitBtn">Create Account</button>
+      </form>
+
+      <div class="auth-footer">
+        Already have an account? <a href="/login">Sign in</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Theme toggle
+    function initTheme() {
+      const saved = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+    }
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      document.getElementById('themeToggle').textContent = next === 'dark' ? '☀️' : '🌙';
+    });
+    initTheme();
+
+    // Redirect if already logged in
+    if (localStorage.getItem('token')) {
+      window.location.href = '/';
+    }
+
+    // Register form
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      const errEl = document.getElementById('errorMsg');
+      const successEl = document.getElementById('successMsg');
+      errEl.style.display = 'none';
+      successEl.style.display = 'none';
+
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (password !== confirmPassword) {
+        errEl.textContent = 'Passwords do not match';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Creating account...';
+
+      try {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            password: password
+          })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          localStorage.setItem('token', data.data.token);
+          localStorage.setItem('user', JSON.stringify(data.data.user));
+          successEl.textContent = 'Account created! Redirecting...';
+          successEl.style.display = 'block';
+          setTimeout(() => { window.location.href = '/'; }, 800);
+        } else {
+          errEl.textContent = data.error;
+          errEl.style.display = 'block';
+        }
+      } catch (err) {
+        errEl.textContent = 'Network error. Please try again.';
+        errEl.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Create Account';
+      }
+    });
+  </script>
+</body>
+</html>
