@@ -2,12 +2,8 @@ require('dotenv').config();
 const db = require('./connection');
 
 const initSQL = `
--- Drop tables if exist (for re-initialization)
-DROP TABLE IF EXISTS tasks;
-DROP TABLE IF EXISTS users;
-
--- Create users table
-CREATE TABLE users (
+-- Create users table (if not exists)
+CREATE TABLE IF NOT EXISTS users (
   id          SERIAL PRIMARY KEY,
   name        VARCHAR(100) NOT NULL,
   email       VARCHAR(255) UNIQUE NOT NULL,
@@ -15,8 +11,8 @@ CREATE TABLE users (
   created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create tasks table
-CREATE TABLE tasks (
+-- Create tasks table (if not exists)
+CREATE TABLE IF NOT EXISTS tasks (
   id          SERIAL PRIMARY KEY,
   title       VARCHAR(255) NOT NULL,
   description TEXT,
@@ -27,11 +23,11 @@ CREATE TABLE tasks (
   updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create indexes
-CREATE INDEX idx_tasks_status ON tasks(status);
-CREATE INDEX idx_tasks_priority ON tasks(priority);
-CREATE INDEX idx_tasks_user ON tasks(user_id);
-CREATE INDEX idx_users_email ON users(email);
+-- Create indexes (if not exist)
+CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
+CREATE INDEX IF NOT EXISTS idx_tasks_priority ON tasks(priority);
+CREATE INDEX IF NOT EXISTS idx_tasks_user ON tasks(user_id);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 `;
 
 async function initDatabase() {
