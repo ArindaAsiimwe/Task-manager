@@ -35,9 +35,6 @@ jobs:
           test -f src/db/init.js && echo "  ✓ src/db/init.js"
           echo "All files present!"
 
-  # Railway automatically deploys on push to main branch
-  # when the GitHub repo is linked to a Railway project.
-  # No additional deploy step is needed here.
   deploy-note:
     runs-on: ubuntu-latest
     needs: test
