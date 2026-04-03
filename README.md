@@ -2,13 +2,6 @@
 
 A simple Task Manager web application deployed on Railway, demonstrating PaaS cloud deployment with PostgreSQL database integration, CI/CD workflows, and monitoring.
 
-## 🛠️ Tech Stack
-- **Runtime:** Node.js 20+
-- **Framework:** Express.js
-- **Database:** PostgreSQL (Railway-managed)
-- **Logging:** Morgan (HTTP request logger)
-- **PaaS:** Railway
-
 ## Quick Start (Local Development)
 
 ```bash
